@@ -89,6 +89,7 @@ static void prv_window_load(Window *window) {
   }, data);
 
   LauncherMenuLayer *launcher_menu_layer = &data->launcher_menu_layer;
+  window_set_background_color(window, shell_prefs_get_screen_background_color(true));
   launcher_menu_layer_init(launcher_menu_layer, data_source);
   launcher_menu_layer_set_click_config_onto_window(launcher_menu_layer, window);
   layer_add_child(window_root_layer, launcher_menu_layer_get_layer(launcher_menu_layer));
@@ -118,7 +119,7 @@ static void prv_window_unload(Window *window) {
     .valid = true,
     .leave_time = rtc_get_ticks(),
     .draw_state.selection_vertical_range = launcher_selection_vertical_range,
-    .draw_state.selection_background_color = shell_prefs_get_apps_menu_highlight_color(),
+    .draw_state.selection_background_color = shell_prefs_get_highlight_color(true),
   };
   launcher_menu_layer_get_selection_state(&data->launcher_menu_layer,
                                           &s_launcher_app_persisted_data.selection_state);

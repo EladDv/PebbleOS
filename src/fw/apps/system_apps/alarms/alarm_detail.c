@@ -15,6 +15,7 @@
 #include "services/normal/activity/activity.h"
 #include "services/normal/alarms/alarm.h"
 #include "system/logging.h"
+#include "shell/prefs.h"
 
 #include <stdio.h>
 
@@ -166,7 +167,7 @@ void alarm_detail_window_push(AlarmId alarm_id, AlarmInfo *alarm_info,
     .callback_context = callback_context,
     .menu_config = {
       .context = data,
-      .colors.background = ALARMS_APP_HIGHLIGHT_COLOR,
+      .colors.background = PBL_IF_COLOR_ELSE(ALARMS_APP_HIGHLIGHT_COLOR, shell_prefs_get_highlight_color(true)),
       .did_close = prv_cleanup_alarm_detail_menu,
     },
   };
@@ -234,5 +235,11 @@ void alarm_detail_window_push(AlarmId alarm_id, AlarmInfo *alarm_info,
     }
   }
 
-  app_action_menu_open(&data->menu_config);
+  ActionMenu *action_menu = app_action_menu_open(&data->menu_config);
+  ActionMenuData *action_data = window_get_user_data(&action_menu->window);
+  ActionMenuLayer *action_menu_layer = &action_data->action_menu_layer;
+
+  window_set_background_color(&action_menu->window,
+                              shell_prefs_get_screen_background_color(false));                             
+  
 }

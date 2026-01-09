@@ -81,6 +81,7 @@ typedef struct {
   int choice;
   OptionMenuContentType content_type;
   OptionMenuColors status_colors;
+  OptionMenuColors normal_colors;
   OptionMenuColors highlight_colors;
   bool icons_enabled;
 } OptionMenuConfig;

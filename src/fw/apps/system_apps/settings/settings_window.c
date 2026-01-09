@@ -60,11 +60,11 @@ static SettingsCallbacks *prv_get_current_callbacks(SettingsData *data) {
 
 static void prv_set_sub_menu_colors(GContext *ctx, const Layer *cell_layer, bool highlight) {
   if (highlight) {
-    graphics_context_set_fill_color(ctx, shell_prefs_get_settings_menu_highlight_color());
-    graphics_context_set_text_color(ctx, GColorWhite);
+    graphics_context_set_fill_color(ctx, shell_prefs_get_highlight_color(true));
+    graphics_context_set_text_color(ctx, shell_prefs_get_highlight_foreground_color(true));
   } else {
-    graphics_context_set_fill_color(ctx, GColorWhite);
-    graphics_context_set_text_color(ctx, GColorBlack);
+    graphics_context_set_fill_color(ctx, shell_prefs_get_screen_background_color(true));
+    graphics_context_set_text_color(ctx, shell_prefs_get_screen_foreground_color(true));
   }
   graphics_fill_rect(ctx, &cell_layer->bounds);
 }
@@ -159,7 +159,7 @@ static void prv_settings_window_load(Window *window) {
   status_bar_layer_init(status_layer);
   const char *title = settings_menu_get_status_name(data->current_category);
   status_bar_layer_set_title(status_layer, i18n_get(title, data), false, false);
-  status_bar_layer_set_colors(status_layer, GColorWhite, GColorBlack);
+  status_bar_layer_set_colors(status_layer, shell_prefs_get_screen_background_color(true), shell_prefs_get_screen_foreground_color(true));
   status_bar_layer_set_separator_mode(status_layer, OPTION_MENU_STATUS_SEPARATOR_MODE);
   layer_add_child(&data->window.layer, status_bar_layer_get_layer(status_layer));
 
@@ -179,8 +179,8 @@ static void prv_settings_window_load(Window *window) {
     .selection_changed = prv_selection_changed_callback,
     .selection_will_change = prv_selection_will_change_callback,
   });
-  menu_layer_set_normal_colors(menu_layer, GColorWhite, GColorBlack);
-  menu_layer_set_highlight_colors(menu_layer, shell_prefs_get_settings_menu_highlight_color(), GColorWhite);
+  menu_layer_set_normal_colors(menu_layer, shell_prefs_get_screen_background_color(true), shell_prefs_get_screen_foreground_color(true));
+  menu_layer_set_highlight_colors(menu_layer, shell_prefs_get_highlight_color(true), shell_prefs_get_highlight_foreground_color(true));
   menu_layer_set_click_config_onto_window(menu_layer, &data->window);
   layer_add_child(&data->window.layer, menu_layer_get_layer(menu_layer));
 
@@ -199,6 +199,10 @@ static void prv_settings_window_load(Window *window) {
 static void prv_settings_window_appear(Window *window) {
   SettingsData *data = window_get_user_data(window);
   SettingsCallbacks *callbacks = prv_get_current_callbacks(data);
+  status_bar_layer_set_colors(&data->status_layer, shell_prefs_get_screen_background_color(true), shell_prefs_get_screen_foreground_color(true));
+  menu_layer_set_normal_colors(&data->menu_layer, shell_prefs_get_screen_background_color(true), shell_prefs_get_screen_foreground_color(true));
+  menu_layer_set_highlight_colors(&data->menu_layer, shell_prefs_get_highlight_color(true), shell_prefs_get_highlight_foreground_color(true));
+  window_set_background_color(&data->window, shell_prefs_get_screen_background_color(true));
   if (callbacks->appear) {
     callbacks->appear(data->callbacks);
   }
@@ -230,6 +234,7 @@ Window *settings_window_create(SettingsMenuItem category, SettingsCallbacks *cal
 
   window_init(&data->window, WINDOW_NAME("Settings Window"));
   window_set_user_data(&data->window, data);
+  window_set_background_color(&data->window, shell_prefs_get_screen_background_color(true));
   window_set_window_handlers(&data->window, &(WindowHandlers){
     .load = prv_settings_window_load,
     .appear = prv_settings_window_appear,
@@ -261,7 +266,10 @@ void settings_menu_mark_dirty(SettingsMenuItem category) {
 void settings_menu_reload_data(SettingsMenuItem category) {
   SettingsData *data = app_state_get_user_data();
   if (data->current_category == category) {
+    window_set_background_color(&data->window, shell_prefs_get_screen_background_color(true));
+    menu_layer_set_normal_colors(&data->menu_layer, shell_prefs_get_screen_background_color(true), shell_prefs_get_screen_foreground_color(true));
     menu_layer_reload_data(&data->menu_layer);
+    status_bar_layer_set_colors(&data->status_layer, shell_prefs_get_screen_background_color(true), shell_prefs_get_screen_foreground_color(true));
   }
 }
 

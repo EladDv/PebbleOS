@@ -190,7 +190,7 @@ static Window *prv_create_first_use_dialog(void) {
   const char *text = i18n_get("Appears on your watchface when an event is about to start.",
                               i18n_owner);
   ExpandableDialog *expandable_dialog = expandable_dialog_create_with_params(
-      WINDOW_NAME("Timeline Quick View First Use"), RESOURCE_ID_SUNNY_DAY_TINY, text, GColorBlack,
+      WINDOW_NAME("Timeline Quick View First Use"), RESOURCE_ID_SUNNY_DAY_TINY, text, GColorWhite,
       PBL_IF_COLOR_ELSE(GColorLightGray, GColorWhite), NULL, RESOURCE_ID_ACTION_BAR_ICON_CHECK,
       prv_push_settings_window);
   expandable_dialog_set_header(expandable_dialog, header);

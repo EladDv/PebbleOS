@@ -101,8 +101,8 @@ void *launcher_app_glance_structured_get_data(LauncherAppGlanceStructured *struc
 //! Get the highlight color that should be used for the provided structured launcher app glance.
 //! @param structured_glance The structured glance for which to get the highlight color
 //! @return The highlight color to use when drawing the structured glance
-GColor launcher_app_glance_structured_get_highlight_color(
-    LauncherAppGlanceStructured *structured_glance);
+// GColor launcher_app_glance_structured_get_highlight_color(
+//     LauncherAppGlanceStructured *structured_glance);
 
 //! Draw an icon in the structured launcher app glance.
 //! @param structured_glance The structured glance in which to draw an icon

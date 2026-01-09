@@ -21,7 +21,7 @@
 #include "system/logging.h"
 #include "system/passert.h"
 #include "syscall/syscall.h"
-
+#include "shell/prefs.h"
 #include "status_bar_layer.h"
 
 #include <string.h>

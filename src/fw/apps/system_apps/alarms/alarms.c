@@ -22,6 +22,7 @@
 #include "services/normal/alarms/alarm.h"
 #include "services/normal/timeline/timeline.h"
 #include "shell/system_theme.h"
+#include "shell/prefs.h"
 #include "system/logging.h"
 #include "system/passert.h"
 #include "util/string.h"
@@ -284,7 +285,7 @@ static void prv_alarm_list_draw_row_callback(GContext *ctx, const Layer *cell_la
   // If the alarm is not smart, use the icon as spacing but don't render it.
   // Otherwise if the alarm is smart draw according to the menu highlight.
   graphics_context_set_tint_color(ctx, !node->info.is_smart ? GColorClear :
-                                       (cell_layer->is_highlighted ? GColorWhite : GColorBlack));
+                                       shell_prefs_get_screen_foreground_color(true));
 
   char alarm_day_text[32] = {0};
   MenuCellLayerConfig config = {
@@ -357,7 +358,7 @@ static void prv_push_alarms_app_opened_dialog(AlarmsAppData *data) {
   const char *header = i18n_get("Smart Alarm", data);
   ExpandableDialog *expandable_dialog = expandable_dialog_create_with_params(
       header, RESOURCE_ID_SMART_ALARM_TINY, first_use_text,
-      GColorBlack, GColorWhite, NULL, RESOURCE_ID_ACTION_BAR_ICON_CHECK,
+      shell_prefs_get_screen_foreground_color(true), shell_prefs_get_screen_background_color(true), NULL, RESOURCE_ID_ACTION_BAR_ICON_CHECK,
       prv_alarms_app_opened_click_handler);
 
   expandable_dialog_set_action_bar_background_color(expandable_dialog, ALARMS_APP_HIGHLIGHT_COLOR);
@@ -381,6 +382,7 @@ static void prv_handle_init(void) {
 
   Window *window = &data->window;
   window_init(window, WINDOW_NAME("Alarms"));
+  window_set_background_color(window, shell_prefs_get_screen_background_color(true));
   window_set_user_data(window, data);
 
   data->alarm_list_head = NULL;
@@ -400,13 +402,16 @@ static void prv_handle_init(void) {
     .selection_changed = prv_alarm_list_selection_changed_callback
   });
 
-  menu_layer_set_highlight_colors(&data->menu_layer, ALARMS_APP_HIGHLIGHT_COLOR, GColorWhite);
+  menu_layer_set_highlight_colors(&data->menu_layer, PBL_IF_COLOR_ELSE(ALARMS_APP_HIGHLIGHT_COLOR, shell_prefs_get_highlight_color(true)), shell_prefs_get_highlight_foreground_color(true));
+  menu_layer_set_normal_colors(&data->menu_layer,
+                                shell_prefs_get_screen_background_color(true),
+                                shell_prefs_get_screen_foreground_color(true));
   menu_layer_set_click_config_onto_window(&data->menu_layer, &data->window);
   layer_add_child(&data->window.layer, menu_layer_get_layer(&data->menu_layer));
 
   status_bar_layer_init(&data->status_layer);
-  status_bar_layer_set_colors(&data->status_layer, PBL_IF_COLOR_ELSE(GColorWhite, GColorBlack),
-                              PBL_IF_COLOR_ELSE(GColorBlack, GColorWhite));
+  status_bar_layer_set_colors(&data->status_layer, shell_prefs_get_screen_background_color(true),
+                             shell_prefs_get_screen_foreground_color(true));
   status_bar_layer_set_separator_mode(&data->status_layer, StatusBarLayerSeparatorModeNone);
   layer_add_child(&data->window.layer, status_bar_layer_get_layer(&data->status_layer));
 
@@ -440,6 +445,8 @@ static void prv_handle_init(void) {
                                   MenuRowAlignCenter, false);
   } else {
     Window *editor = alarm_editor_create_new_alarm(prv_handle_alarm_editor_complete, data);
+    window_set_background_color(editor,
+                                shell_prefs_get_screen_background_color(true));
     app_window_stack_push(editor, true);
     app_window_stack_insert_next(&data->window);
   }

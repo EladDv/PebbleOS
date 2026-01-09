@@ -143,9 +143,54 @@ void shell_prefs_set_legacy_app_render_mode(LegacyAppRenderMode mode);
 bool display_orientation_is_left(void);
 void display_orientation_set_left(bool left);
 #endif
+typedef enum ThemeMode {
+  ThemeMode_Default = 0,
+  ThemeMode_Light = 1,
+  ThemeMode_Dark = 2,
+  ThemeModeCount = 3,
+} ThemeMode;
+
+typedef struct ThemeModeColors{
+  GColor dark_screen_background_color;
+  GColor dark_screen_foreground_color;
+  GColor dark_highlight_color;
+  GColor dark_highlight_foreground_color;
+  GColor dark_text_background_color;
+  GColor dark_text_color;
+
+  GColor light_screen_background_color; 
+  GColor light_screen_foreground_color; 
+  GColor light_highlight_color; 
+  GColor light_highlight_foreground_color;  
+  GColor light_text_background_color; 
+  GColor light_text_color;  
+
+} ThemeModeColors;
+
+
+ThemeMode shell_prefs_get_theme_mode(void);
+void shell_prefs_set_theme_mode(ThemeMode mode);
+
+ThemeModeColors shell_prefs_get_theme_mode_colors(void);
+void shell_prefs_set_theme_mode_colors(ThemeModeColors mode);
 
 GColor shell_prefs_get_settings_menu_highlight_color(void);
 void shell_prefs_set_settings_menu_highlight_color(GColor color);
 
 GColor shell_prefs_get_apps_menu_highlight_color(void);
 void shell_prefs_set_apps_menu_highlight_color(GColor color);
+
+ThemeModeColors shell_prefs_get_theme_mode_colors(void);  
+void shell_prefs_set_theme_mode_colors(ThemeModeColors colors);
+
+void shell_prefs_set_highlight_color(GColor color, bool is_light);
+
+GColor shell_prefs_get_highlight_color(bool default_light);
+GColor shell_prefs_get_highlight_foreground_color(bool default_light);
+GColor shell_prefs_get_screen_grey_color(bool default_light);
+GColor shell_prefs_get_screen_background_color(bool default_light);
+GColor shell_prefs_get_screen_background_color_override(bool default_light, GColor override_color_light, GColor override_color_dark);
+GColor shell_prefs_get_screen_foreground_color(bool default_light);
+GColor shell_prefs_get_screen_foreground_color_override(bool default_light, GColor override_color_light, GColor override_color_dark);
+GColor shell_prefs_get_text_color(bool default_light);
+GColor shell_prefs_get_text_background_color(bool default_light);

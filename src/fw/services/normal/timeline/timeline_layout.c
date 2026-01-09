@@ -20,7 +20,7 @@
 #include "system/logging.h"
 #include "util/size.h"
 #include "util/string.h"
-
+#include "shell/prefs.h"
 #define ARROW_SIZE_PX \
     PREFERRED_CONTENT_SIZE_SWITCH(PreferredContentSizeDefault,     \
       /* This is the same as Medium until Small is designed */     \
@@ -395,6 +395,7 @@ static GTextNode *prv_create_all_day_text_node(const TimelineLayout *layout) {
           &layout->layout_layer, &s_all_day_config.text.extent.node);
   // TODO: PBL-30522 Enable timeline list view text flow
   // Remove when text flow is enabled
+  text_node->color = shell_prefs_get_screen_foreground_color(true);
   if (PBL_IF_ROUND_ELSE(layout->layout_layer.mode == LayoutLayerModePinnedThin, false)) {
     const bool is_future = (layout->info->scroll_direction == TimelineScrollDirectionDown);
     const int padding_left = is_future ? 25 : 29;
@@ -533,6 +534,7 @@ static GTextNode *prv_create_pin_view_node(TimelineLayout *layout) {
         attribute_get_string(attributes, AttributeIdShortTitle, NULL) ?:
         attribute_get_string(attributes, layout->impl->attributes.primary_id, "");
     primary_node->line_spacing_delta = style->primary_line_spacing_delta;
+    primary_node->color = shell_prefs_get_screen_foreground_color(true);
     int num_primary_lines = is_fat ? 2 : 1;
     if (is_peek) {
       if (!has_secondary) {
@@ -574,6 +576,7 @@ static GTextNode *prv_create_pin_view_node(TimelineLayout *layout) {
       secondary_node->text = secondary_text;
     }
     secondary_node->overflow = overflow;
+    secondary_node->color = shell_prefs_get_screen_foreground_color(true);
     graphics_text_node_container_add_child(&vertical_node->container, &secondary_node->node);
 
     // TODO: PBL-30522 Enable timeline list view text flow
@@ -712,7 +715,6 @@ GTextNode *timeline_layout_create_card_view_from_config(const TimelineLayout *la
   vertical_config.container.extra_capacity = num_default_nodes;
   GTextNode *vertical_node = layout_create_text_node_from_config(
       &layout->layout_layer, &vertical_config.container.extent.node);
-
   const LayoutNodeHeadingsParagraphsConfig headings_paragraphs_config = {
     .size = LayoutContentSizeDefault,
     .heading_style_font = TextStyleFont_ParagraphHeader,
@@ -734,10 +736,10 @@ GTextNode *timeline_layout_create_card_view_from_config(const TimelineLayout *la
     .text.style_font = TextStyleFont_ParagraphHeader,
     .text.extent.margin.h = TIMELINE_CARD_BODY_HEADER_MARGIN_HEIGHT,
   };
+  GTextNode *child = layout_create_text_node_from_config(&layout->layout_layer,
+                                          &s_header_config.text.extent.node);
   graphics_text_node_container_add_child(
-      (GTextNodeContainer *)vertical_node,
-      layout_create_text_node_from_config(&layout->layout_layer,
-                                          &s_header_config.text.extent.node));
+      (GTextNodeContainer *)vertical_node, child);
 
   static const LayoutNodeTextDynamicConfig s_body_config = {
     .text.extent.node.type = LayoutNodeType_TextDynamic,
@@ -747,10 +749,11 @@ GTextNode *timeline_layout_create_card_view_from_config(const TimelineLayout *la
     .text.style_font = TextStyleFont_Body,
     .text.extent.margin.h = TIMELINE_CARD_BODY_MARGIN_HEIGHT,
   };
+  GTextNode *child_sub = layout_create_text_node_from_config(&layout->layout_layer,
+                                          &s_body_config.text.extent.node);
+
   graphics_text_node_container_add_child(
-      (GTextNodeContainer *)vertical_node,
-      layout_create_text_node_from_config(&layout->layout_layer,
-                                          &s_body_config.text.extent.node));
+      (GTextNodeContainer *)vertical_node, child_sub);
   return vertical_node;
 }
 

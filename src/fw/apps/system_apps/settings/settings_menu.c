@@ -49,9 +49,7 @@ static const SettingsModuleGetMetadata s_submodule_registry[] = {
   [SettingsMenuItemDateTime]      = settings_system_get_info,
 #endif
   [SettingsMenuItemDisplay]       = settings_display_get_info,
-#if PBL_COLOR
   [SettingsMenuItemThemes]        = settings_themes_get_info,
-#endif
   [SettingsMenuItemSystem]        = settings_system_get_info,
 };
 

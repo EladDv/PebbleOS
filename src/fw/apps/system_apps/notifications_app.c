@@ -29,10 +29,12 @@
 #include "services/normal/notifications/notification_storage.h"
 #include "services/normal/timeline/notification_layout.h"
 #include "shell/system_theme.h"
+#include "shell/prefs.h"
 #include "system/passert.h"
 #include "util/date.h"
 #include "util/list.h"
 #include "util/string.h"
+
 
 #if !TINTIN_FORCE_FIT
 typedef struct LoadedNotificationNode {
@@ -333,8 +335,15 @@ static void prv_draw_notification_cell_rect(GContext *ctx, const Layer *cell_lay
   if (icon) {
     void (*draw_func)(GContext *, GDrawCommandImage *, GPoint) = gdraw_command_image_draw;
 #if PBL_BW
-    if (menu_cell_layer_is_highlighted(cell_layer)) {
+    if ((shell_prefs_get_theme_mode() > ThemeMode_Light && !menu_cell_layer_is_highlighted(cell_layer)) ||
+        (shell_prefs_get_theme_mode() < ThemeMode_Dark && menu_cell_layer_is_highlighted(cell_layer))) {
       draw_func = prv_draw_pdc_bw_inverted;
+    }
+#else // PBL_COLOR
+    if (shell_prefs_get_theme_mode() > ThemeMode_Light) {
+      draw_func = prv_draw_pdc_bw_inverted;
+    } else {
+      draw_func = gdraw_command_image_draw;
     }
 #endif
 
@@ -695,11 +704,12 @@ static void prv_window_load(Window *window) {
       .select_click = prv_select_callback,
   });
 
-  menu_layer_set_normal_colors(menu_layer, GColorWhite, GColorBlack);
+  menu_layer_set_normal_colors(menu_layer, shell_prefs_get_screen_background_color(true), 
+                               shell_prefs_get_screen_foreground_color(true));
   menu_layer_set_highlight_colors(menu_layer,
-                                  PBL_IF_COLOR_ELSE(DEFAULT_NOTIFICATION_COLOR, GColorBlack),
-                                  GColorWhite);
-
+                                  PBL_IF_COLOR_ELSE(DEFAULT_NOTIFICATION_COLOR, shell_prefs_get_highlight_color(true)),
+                                  shell_prefs_get_highlight_foreground_color(true));
+  window_set_background_color(window, shell_prefs_get_screen_background_color(true));
   menu_layer_set_click_config_onto_window(menu_layer, window);
   layer_add_child(&window->layer, menu_layer_get_layer(menu_layer));
 
@@ -711,14 +721,14 @@ static void prv_window_load(Window *window) {
                                   &GRect(horizontal_margin, window->layer.bounds.size.h / 2 - 15,
                                          window->layer.bounds.size.w - horizontal_margin,
                                          window->layer.bounds.size.h / 2),
-                                  i18n_get("No notifications", data), font, GColorBlack,
-                                  GColorWhite, GTextAlignmentCenter,
+                                  i18n_get("No notifications", data), font, shell_prefs_get_text_color(true),
+                                  shell_prefs_get_text_background_color(true), GTextAlignmentCenter,
                                   GTextOverflowModeTrailingEllipsis);
   layer_add_child(&window->layer, text_layer_get_layer(text_layer));
 
 #if PBL_ROUND
   GColor bg_color = GColorClear;
-  GColor fg_color = GColorBlack;
+  GColor fg_color = shell_prefs_get_screen_foreground_color(true);
 
   StatusBarLayer *status_bar = &data->status_bar_layer;
   status_bar_layer_init(status_bar);

@@ -200,9 +200,10 @@ void launcher_menu_layer_init(LauncherMenuLayer *launcher_menu_layer,
 
   MenuLayer *menu_layer = &launcher_menu_layer->menu_layer;
   menu_layer_init(menu_layer, &menu_layer_frame);
+  menu_layer_set_normal_colors(menu_layer, shell_prefs_get_screen_background_color(true), shell_prefs_get_screen_foreground_color(true));
   menu_layer_set_highlight_colors(menu_layer,
-                                  shell_prefs_get_apps_menu_highlight_color(),
-                                  PBL_IF_COLOR_ELSE(GColorBlack, GColorWhite));
+                                  shell_prefs_get_highlight_color(true),
+                                  shell_prefs_get_highlight_foreground_color(true));
   menu_layer_pad_bottom_enable(menu_layer, false);
   menu_layer_set_callbacks(menu_layer, launcher_menu_layer, &(MenuLayerCallbacks) {
     .get_num_rows = prv_menu_layer_get_num_rows,
@@ -236,8 +237,8 @@ void launcher_menu_layer_init(LauncherMenuLayer *launcher_menu_layer,
       scroll_layer_get_content_indicator(&menu_layer->scroll_layer);
   ContentIndicatorConfig content_indicator_config = (ContentIndicatorConfig) {
     .layer = up_arrow_layer,
-    .colors.background = GColorWhite,
-    .colors.foreground = GColorDarkGray,
+    .colors.background = shell_prefs_get_screen_background_color(true),
+    .colors.foreground = shell_prefs_get_screen_grey_color(true),
   };
   content_indicator_configure_direction(content_indicator, ContentIndicatorDirectionUp,
                                         &content_indicator_config);

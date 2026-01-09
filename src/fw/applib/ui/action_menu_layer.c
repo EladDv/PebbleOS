@@ -16,6 +16,7 @@
 #include "kernel/ui/kernel_ui.h"
 #include "resource/resource_ids.auto.h"
 #include "shell/system_theme.h"
+#include "shell/prefs.h"
 #include "system/passert.h"
 #include "util/math.h"
 
@@ -73,12 +74,12 @@ static void prv_cell_column_draw(GContext *ctx, struct Layer const *cell_layer,
     }
 
     if (sel_idx == i) {
-      graphics_context_set_text_color(ctx, PBL_IF_COLOR_ELSE(GColorWhite, GColorBlack));
+      graphics_context_set_text_color(ctx, shell_prefs_get_highlight_foreground_color(false));
 #if SCREEN_COLOR_DEPTH_BITS == 1
       // We only want to have a background on non-color platforms, while leaving this in with
       // a PBL_IF_COLOR_ELSE makes this a no-op, we'll save some cycles and code space just
       // skipping it.
-      graphics_context_set_fill_color(ctx, GColorWhite);
+      graphics_context_set_fill_color(ctx, shell_prefs_get_highlight_color(false));
 
       const int16_t y_offset = 1;
       const int16_t padding = r.size.w / 6;
@@ -90,7 +91,7 @@ static void prv_cell_column_draw(GContext *ctx, struct Layer const *cell_layer,
       graphics_fill_round_rect(ctx, &bg_rect, corner_radius, GCornersAll);
 #endif
     } else {
-      graphics_context_set_text_color(ctx, PBL_IF_COLOR_ELSE(GColorDarkGray, GColorWhite));
+      graphics_context_set_text_color(ctx, PBL_IF_COLOR_ELSE(GColorDarkGray, shell_prefs_get_text_color(false)));
     }
 
     graphics_draw_text(ctx, items[i].label, font, r, GTextOverflowModeTrailingEllipsis,
@@ -418,8 +419,8 @@ static void prv_cell_item_draw(GContext *ctx, const Layer *cell_layer,
     // Prevent drawing outside of the context bitmap
     grect_clip(&ctx->draw_state.clip_box, &ctx->dest_bitmap.bounds);
 #endif
-    graphics_context_set_text_color(ctx, PBL_IF_COLOR_ELSE(GColorWhite, GColorBlack));
-    graphics_context_set_fill_color(ctx, PBL_IF_COLOR_ELSE(GColorBlack, GColorWhite));
+    // graphics_context_set_text_color(ctx, shell_prefs_get_highlight_foreground_color(false));
+    // graphics_context_set_fill_color(ctx, shell_prefs_get_highlight_color(false));
   }
 
   PBL_IF_RECT_ELSE(prv_cell_item_content_draw_rect,
@@ -754,8 +755,11 @@ void action_menu_layer_init(ActionMenuLayer *aml, const GRect *frame) {
   aml->layer.update_proc = prv_update_proc;
 
   menu_layer_init(&aml->menu_layer, &aml->layer.bounds);
-  menu_layer_set_normal_colors(&aml->menu_layer, GColorBlack,
-                               PBL_IF_COLOR_ELSE(GColorDarkGray, GColorWhite));
+  menu_layer_set_highlight_colors(&aml->menu_layer,
+                                PBL_IF_COLOR_ELSE(GColorClear, shell_prefs_get_highlight_color(false)),
+                                shell_prefs_get_highlight_foreground_color(false));
+  menu_layer_set_normal_colors(&aml->menu_layer, shell_prefs_get_screen_background_color(false),
+                               PBL_IF_COLOR_ELSE(shell_prefs_get_screen_grey_color(false), shell_prefs_get_screen_foreground_color(false)));
 #if PBL_ROUND
   menu_layer_pad_bottom_enable(&aml->menu_layer, false);
 #endif

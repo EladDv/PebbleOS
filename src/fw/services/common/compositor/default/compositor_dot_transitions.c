@@ -21,6 +21,7 @@
 #include "util/attributes.h"
 #include "util/math.h"
 #include "util/size.h"
+#include "shell/prefs.h"
 
 static CompositorTransitionDirection prv_flip_transition_direction(
   CompositorTransitionDirection direction) {
@@ -307,36 +308,36 @@ static void prv_configure_dot_transition_animation(Animation *animation,
 }
 
 static void prv_dot_transition_to_timeline_past_animation_init(Animation *animation) {
-  prv_configure_dot_transition_animation(animation, TIMELINE_DOT_COLOR,
-                                         TIMELINE_DOT_COLOR, TIMELINE_PAST_COLOR,
+  prv_configure_dot_transition_animation(animation, shell_prefs_get_highlight_foreground_color(true),
+                                         shell_prefs_get_highlight_foreground_color(true), TIMELINE_PAST_COLOR,
                                          CompositorTransitionDirectionUp,
                                          STATIC_DOT_ANIMATION_DURATION_MS, false);
 }
 
 static void prv_dot_transition_from_timeline_past_animation_init(Animation *animation) {
-  prv_configure_dot_transition_animation(animation, TIMELINE_DOT_COLOR,
-                                         TIMELINE_DOT_COLOR, TIMELINE_PAST_COLOR,
+  prv_configure_dot_transition_animation(animation, shell_prefs_get_highlight_foreground_color(true),
+                                         shell_prefs_get_highlight_foreground_color(true), TIMELINE_PAST_COLOR,
                                          CompositorTransitionDirectionDown,
                                          STATIC_DOT_ANIMATION_DURATION_MS, true);
 }
 
 static void prv_dot_transition_to_timeline_future_animation_init(Animation *animation) {
   prv_configure_dot_transition_animation(animation, TIMELINE_DOT_COLOR,
-                                         TIMELINE_DOT_COLOR, TIMELINE_FUTURE_COLOR,
+                                         shell_prefs_get_highlight_foreground_color(true), shell_prefs_get_highlight_color(true),
                                          CompositorTransitionDirectionUp,
                                          STATIC_DOT_ANIMATION_DURATION_MS, true);
 }
 
 static void prv_dot_transition_from_timeline_future_animation_init(Animation *animation) {
-  prv_configure_dot_transition_animation(animation, TIMELINE_DOT_COLOR,
-                                         TIMELINE_DOT_COLOR, TIMELINE_FUTURE_COLOR,
+  prv_configure_dot_transition_animation(animation, shell_prefs_get_highlight_foreground_color(true),
+                                         shell_prefs_get_highlight_foreground_color(true), shell_prefs_get_highlight_color(true),
                                          CompositorTransitionDirectionDown,
                                          STATIC_DOT_ANIMATION_DURATION_MS, false);
 }
 
 static void prv_dot_transition_from_app_fetch_animation_init(Animation *animation) {
-  prv_configure_dot_transition_animation(animation, GColorWhite,
-                                         GColorWhite, GColorLightGray,
+  prv_configure_dot_transition_animation(animation, shell_prefs_get_highlight_foreground_color(true),
+                                         shell_prefs_get_highlight_foreground_color(true), GColorLightGray,
                                          CompositorTransitionDirectionNone,
                                          STATIC_DOT_ANIMATION_DURATION_MS, false);
 }

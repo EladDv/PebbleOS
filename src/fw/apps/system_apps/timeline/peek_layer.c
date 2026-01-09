@@ -14,7 +14,7 @@
 #include "services/normal/timeline/timeline_resources.h"
 #include "system/logging.h"
 #include "util/math.h"
-
+#include "shell/prefs.h"
 #include "resource/resource_ids.auto.h"
 
 //! Title text vertically centered position
@@ -46,7 +46,7 @@ static void prv_update_proc(Layer *layer, GContext *ctx) {
   }
 
   if (peek_layer->show_dot) {
-    graphics_context_set_fill_color(ctx, GColorBlack);
+    graphics_context_set_fill_color(ctx, shell_prefs_get_screen_background_color(true));
     GRect dot_rect = { .size = { peek_layer->dot_diameter, peek_layer->dot_diameter } };
     grect_align(&dot_rect, &peek_layer->layer.bounds, GAlignCenter, false /* clip */);
     graphics_fill_radial(ctx, dot_rect, GOvalScaleModeFitCircle, peek_layer->dot_diameter, 0,
@@ -125,7 +125,7 @@ void peek_layer_init(PeekLayer *peek_layer, const GRect *frame) {
   text_layer_init_with_parameters(&peek_layer->number.text_layer,
                                   &text_rect,
                                   NULL, fonts_get_system_font(FONT_KEY_LECO_26_BOLD_NUMBERS_AM_PM),
-                                  GColorBlack, GColorClear, text_alignment,
+                                  shell_prefs_get_screen_foreground_color(true), GColorClear, text_alignment,
                                   GTextOverflowModeTrailingEllipsis);
   layer_add_child((Layer *)peek_layer, (Layer *)&peek_layer->number.text_layer);
   // title layer
@@ -133,14 +133,14 @@ void peek_layer_init(PeekLayer *peek_layer, const GRect *frame) {
   text_layer_init_with_parameters(&peek_layer->title.text_layer,
                                   &text_rect,
                                   NULL, fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD),
-                                  GColorBlack, GColorClear, text_alignment,
+                                  shell_prefs_get_screen_foreground_color(true), GColorClear, text_alignment,
                                   GTextOverflowModeTrailingEllipsis);
   layer_add_child((Layer *)peek_layer, (Layer *)&peek_layer->title.text_layer);
   // subtitle layer
   text_layer_init_with_parameters(&peek_layer->subtitle.text_layer,
                                   &text_rect,
                                   NULL, fonts_get_system_font(FONT_KEY_GOTHIC_18),
-                                  GColorBlack, GColorClear, text_alignment,
+                                  shell_prefs_get_screen_foreground_color(true), GColorClear, text_alignment,
                                   GTextOverflowModeTrailingEllipsis);
   layer_add_child((Layer *)peek_layer, (Layer *)&peek_layer->subtitle.text_layer);
 

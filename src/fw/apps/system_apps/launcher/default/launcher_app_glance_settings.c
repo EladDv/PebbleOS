@@ -23,6 +23,7 @@
 #include "util/size.h"
 #include "util/string.h"
 #include "util/struct.h"
+#include "shell/prefs.h"
 
 #include <stdio.h>
 
@@ -119,11 +120,9 @@ static void prv_battery_icon_node_draw_cb(GContext *ctx, const GRect *rect,
       .points = (GPoint *)s_battery_silhouette_path_points,
       .offset = rect->origin,
     };
-
-    const GColor battery_silhouette_color =
-        launcher_app_glance_structured_get_highlight_color(structured_glance);
-    const GColor battery_fill_color =
-        PBL_IF_COLOR_ELSE(gcolor_legible_over(battery_silhouette_color), GColorWhite);
+    bool is_highlighted = structured_glance->glance.is_highlighted;
+    const GColor battery_silhouette_color = is_highlighted ? shell_prefs_get_highlight_foreground_color(true) : shell_prefs_get_screen_foreground_color(true);
+    const GColor battery_fill_color = is_highlighted ? PBL_IF_COLOR_ELSE(shell_prefs_get_text_background_color(true), shell_prefs_get_screen_foreground_color(true)) : shell_prefs_get_screen_background_color(true);
 
     graphics_context_set_fill_color(ctx, battery_silhouette_color);
 
@@ -136,11 +135,6 @@ static void prv_battery_icon_node_draw_cb(GContext *ctx, const GRect *rect,
 
     // Inset the filled area
     GRect battery_fill_rect = grect_inset_internal(battery_silhouette_frame, 3, 2);
-#if !PBL_COLOR
-    // Fill the battery silhouette all the way for B&W, in order to make the BG black always.
-    graphics_context_set_fill_color(ctx, GColorBlack);
-    graphics_fill_rect(ctx, &battery_fill_rect);
-#endif
 
     // Adjust fill width for charge percentage, never filling below 10%
     uint8_t clipped_charge_percent =

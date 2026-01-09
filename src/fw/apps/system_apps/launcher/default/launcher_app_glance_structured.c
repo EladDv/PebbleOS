@@ -16,6 +16,7 @@
 #include "util/attributes.h"
 #include "util/string.h"
 #include "util/struct.h"
+#include "shell/prefs.h"
 
 #if PLATFORM_ROBERT || PLATFORM_OBELIX || PLATFORM_GETAFIX
 #define LAUNCHER_APP_GLANCE_STRUCTURED_ICON_HORIZONTAL_MARGIN (9)
@@ -82,17 +83,12 @@ static void prv_structured_glance_icon_bitmap_processor_post_func(
   ctx->draw_state.tint_color = processor_with_data->saved_tint_color;
 }
 
-GColor launcher_app_glance_structured_get_highlight_color(
-    LauncherAppGlanceStructured *structured_glance) {
-  return PBL_IF_COLOR_ELSE(GColorBlack,
-                           structured_glance->glance.is_highlighted ? GColorWhite : GColorBlack);
-}
 
 void launcher_app_glance_structured_draw_icon(LauncherAppGlanceStructured *structured_glance,
                                               GContext *ctx, KinoReel *icon, GPoint origin) {
-  const GColor desired_tint_color =
-      launcher_app_glance_structured_get_highlight_color(structured_glance);
-
+  const GColor desired_tint_color = structured_glance->glance.is_highlighted
+      ? shell_prefs_get_highlight_foreground_color(true)
+      : shell_prefs_get_screen_foreground_color(true);
   GenericGlanceIconBitmapProcessor structured_glance_icon_bitmap_processor = {
     .bitmap_processor = {
       .pre = prv_strucutred_glance_icon_bitmap_processor_pre_func,
@@ -165,8 +161,9 @@ static GTextNode *prv_structured_glance_create_text_node(
       graphics_text_node_create_text_dynamic(buffer_size, update, structured_glance);
   GTextNodeText *underlying_text_node_text = &dynamic_text_node->text;
   underlying_text_node_text->font = font;
-  underlying_text_node_text->color =
-      launcher_app_glance_structured_get_highlight_color(structured_glance);
+  underlying_text_node_text->color = structured_glance->glance.is_highlighted
+      ? shell_prefs_get_highlight_foreground_color(true)
+      : shell_prefs_get_screen_foreground_color(true);
   underlying_text_node_text->overflow = GTextOverflowModeTrailingEllipsis;
   underlying_text_node_text->node.offset = GPoint(0, -fonts_get_font_cap_offset(font));
   underlying_text_node_text->max_size.h = fonts_get_font_height(font);

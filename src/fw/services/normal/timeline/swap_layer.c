@@ -18,6 +18,7 @@
 #include "process_state/app_state/app_state.h"
 #include "system/logging.h"
 #include "system/passert.h"
+#include "shell/prefs.h"
 #include "util/math.h"
 
 #include <string.h>
@@ -243,7 +244,7 @@ static void prv_arrow_layer_update_proc(Layer *layer, GContext* ctx) {
   const GRect *layer_bounds = &layer->bounds;
 
 #if PBL_RECT
-  graphics_context_set_fill_color(ctx, GColorWhite);
+  graphics_context_set_fill_color(ctx, shell_prefs_get_screen_background_color(true));
   graphics_fill_rect(ctx, layer_bounds);
 #endif
 
@@ -261,7 +262,8 @@ static void prv_arrow_layer_update_proc(Layer *layer, GContext* ctx) {
 #if UNITTEST
   const GCompOp compositing_mode = GCompOpSet;
 #else
-  const GCompOp compositing_mode = PBL_IF_COLOR_ELSE(GCompOpSet, GCompOpAssign);
+  const GCompOp compositing_mode = PBL_IF_COLOR_ELSE(GCompOpTint, GCompOpAssign + (int)(shell_prefs_get_theme_mode() > ThemeMode_Light)); // changing to tint with fg color acts like normal drawing on B&W
+  graphics_context_set_tint_color(ctx, shell_prefs_get_screen_foreground_color(true)); // but with proper fg color
 #endif
   graphics_context_set_compositing_mode(ctx, compositing_mode);
 

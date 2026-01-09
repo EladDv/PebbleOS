@@ -19,7 +19,7 @@
 #include "system/logging.h"
 #include "system/passert.h"
 #include "util/size.h"
-
+#include "shell/prefs.h"
 #include <string.h>
 
 #define ALARM_DAY_LIST_CELL_HEIGHT PBL_IF_RECT_ELSE(menu_cell_small_cell_height(), \
@@ -240,6 +240,8 @@ static void prv_day_picker_handle_selection(MenuLayer *menu_layer, MenuIndex *ce
 
 static void prv_setup_day_picker_window(AlarmEditorData *data) {
   window_init(&data->day_picker_window, WINDOW_NAME("Alarm Day Picker"));
+  window_set_background_color(&data->day_picker_window,
+                          shell_prefs_get_screen_background_color(true));
   window_set_user_data(&data->day_picker_window, data);
   data->day_picker_window.window_handlers.unload = prv_day_picker_window_unload;
 
@@ -256,8 +258,11 @@ static void prv_setup_day_picker_window(AlarmEditorData *data) {
     .select_click = prv_day_picker_handle_selection,
   });
   menu_layer_set_highlight_colors(&data->day_picker_menu_layer,
-                                  ALARMS_APP_HIGHLIGHT_COLOR,
-                                  GColorWhite);
+                                  PBL_IF_COLOR_ELSE(GColorJaegerGreen, shell_prefs_get_highlight_color(true)),
+                                  shell_prefs_get_highlight_foreground_color(true));
+  menu_layer_set_normal_colors(&data->day_picker_menu_layer,
+                                 shell_prefs_get_screen_background_color(true),
+                                 shell_prefs_get_screen_foreground_color(true));
   menu_layer_set_click_config_onto_window(&data->day_picker_menu_layer, &data->day_picker_window);
   layer_add_child(&data->day_picker_window.layer,
                   menu_layer_get_layer(&data->day_picker_menu_layer));
@@ -393,6 +398,8 @@ static void prv_custom_day_picker_selection_changed(MenuLayer *menu_layer, MenuI
 
 static void prv_setup_custom_day_picker_window(AlarmEditorData *data) {
   window_init(&data->custom_day_picker_window, WINDOW_NAME("Alarm Custom Day Picker"));
+  window_set_background_color(&data->custom_day_picker_window,
+                            shell_prefs_get_screen_background_color(true));
   window_set_user_data(&data->custom_day_picker_window, data);
   data->custom_day_picker_window.window_handlers.unload = prv_custom_day_picker_window_unload;
 
@@ -410,8 +417,11 @@ static void prv_setup_custom_day_picker_window(AlarmEditorData *data) {
     .selection_changed = prv_custom_day_picker_selection_changed
   });
   menu_layer_set_highlight_colors(&data->custom_day_picker_menu_layer,
-                                  ALARMS_APP_HIGHLIGHT_COLOR,
-                                  GColorWhite);
+                                  PBL_IF_COLOR_ELSE(GColorJaegerGreen, shell_prefs_get_highlight_color(true)),
+                                  shell_prefs_get_highlight_foreground_color(true));
+  menu_layer_set_normal_colors(&data->custom_day_picker_menu_layer,
+                                 shell_prefs_get_screen_background_color(true),
+                                 shell_prefs_get_screen_foreground_color(true));
   menu_layer_set_click_config_onto_window(&data->custom_day_picker_menu_layer,
                                           &data->custom_day_picker_window);
   layer_add_child(&data->custom_day_picker_window.layer,
@@ -485,7 +495,7 @@ static void prv_time_picker_complete(TimeSelectionWindowData *time_picker_window
 
 static void prv_setup_time_picker_window(AlarmEditorData *data) {
   const TimeSelectionWindowConfig config = {
-    .color = ALARMS_APP_HIGHLIGHT_COLOR,
+    .color = PBL_IF_COLOR_ELSE(GColorJaegerGreen, shell_prefs_get_highlight_color(true)),
     .callback = {
       .update = true,
       .complete = prv_time_picker_complete,
@@ -493,6 +503,8 @@ static void prv_setup_time_picker_window(AlarmEditorData *data) {
     },
   };
   time_selection_window_init(&data->time_picker_window, &config);
+  window_set_background_color(&data->time_picker_window.window,
+                              shell_prefs_get_screen_background_color(true));
   window_set_user_data(&data->time_picker_window.window, data);
   data->time_picker_window.window.window_handlers.unload = prv_time_picker_window_unload;
   data->time_picker_window.window.window_handlers.appear = prv_time_picker_window_appear;
@@ -551,7 +563,16 @@ static void prv_setup_type_menu_window(AlarmEditorData *data) {
       false /* icons_enabled */, s_type_labels, data);
   PBL_ASSERTN(option_menu);
   data->alarm_type_menu = option_menu;
-  option_menu_set_highlight_colors(option_menu, ALARMS_APP_HIGHLIGHT_COLOR, GColorWhite);
+  window_set_background_color(&option_menu->window,
+                            shell_prefs_get_screen_background_color(true));
+  option_menu_set_highlight_colors(option_menu, PBL_IF_COLOR_ELSE(GColorJaegerGreen, shell_prefs_get_highlight_color(true)), 
+                                  shell_prefs_get_highlight_foreground_color(true));
+  option_menu_set_normal_colors(option_menu,
+                                shell_prefs_get_screen_background_color(true),
+                                shell_prefs_get_screen_foreground_color(true));
+  option_menu_set_status_colors(option_menu,
+                                shell_prefs_get_screen_background_color(true),
+                                shell_prefs_get_screen_foreground_color(true));
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -566,7 +587,6 @@ Window* alarm_editor_create_new_alarm(AlarmEditorCompleteCallback complete_callb
     .callback_context = callback_context,
     .creating_alarm = true,
   };
-
   // Setup the windows
   prv_setup_time_picker_window(data);
   prv_setup_day_picker_window(data);

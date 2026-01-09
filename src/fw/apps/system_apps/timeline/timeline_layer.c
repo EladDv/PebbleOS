@@ -34,7 +34,7 @@
 #include "util/string.h"
 #include "util/struct.h"
 #include "util/trig.h"
-
+#include "shell/prefs.h"
 #include <stdint.h>
 #include <time.h>
 
@@ -613,7 +613,7 @@ static void prv_update_proc(struct Layer *layer, GContext* ctx) {
   TimelineLayer *timeline_layer = (TimelineLayer *)layer;
   const GRect *bounds = &layer->bounds;
 
-  graphics_context_set_fill_color(ctx, GColorWhite);
+  graphics_context_set_fill_color(ctx, shell_prefs_get_screen_background_color(true));
   graphics_fill_rect(ctx, &(GRect) { .size = bounds->size });
 
   AnimationProgress progress;
@@ -621,7 +621,7 @@ static void prv_update_proc(struct Layer *layer, GContext* ctx) {
       animation_get_progress(timeline_layer->animation, &progress)) {
     const GPoint offset = { PEEK_ANIMATIONS_SPEED_LINES_OFFSET_X,
                             interpolate_int64_linear(progress, 0, -DISP_ROWS) };
-    graphics_context_set_fill_color(ctx, GColorBlack);
+    graphics_context_set_fill_color(ctx, shell_prefs_get_screen_background_color(true));
     peek_animations_draw_timeline_speed_lines(ctx, offset);
   }
 
@@ -664,7 +664,7 @@ static void prv_update_proc(struct Layer *layer, GContext* ctx) {
   }
 
   graphics_context_set_antialiased(ctx, true);
-  const GColor arrow_fill_color = PBL_IF_RECT_ELSE(timeline_layer->sidebar_color, GColorWhite);
+  const GColor arrow_fill_color = PBL_IF_RECT_ELSE(timeline_layer->sidebar_color, shell_prefs_get_highlight_foreground_color(true));
   graphics_context_set_fill_color(ctx, arrow_fill_color);
   gpath_draw_filled(ctx, &arrow_path);
   graphics_context_set_antialiased(ctx, false);

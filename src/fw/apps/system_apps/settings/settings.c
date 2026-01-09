@@ -34,9 +34,8 @@ static void prv_draw_row_callback(GContext *ctx, const Layer *cell_layer,
 
   const char *category_title = settings_menu_get_submodule_info(cell_index->row)->name;
   const char *title = i18n_get(category_title, data);
-  menu_layer_set_highlight_colors(&(data->menu_layer),
-                                shell_prefs_get_settings_menu_highlight_color(),
-                                GColorWhite);
+  menu_layer_set_highlight_colors(&(data->menu_layer), shell_prefs_get_highlight_color(PBL_BW), shell_prefs_get_highlight_foreground_color(PBL_BW));
+
   menu_cell_basic_draw(ctx, cell_layer, title, NULL, NULL);
 }
 
@@ -85,12 +84,8 @@ static void prv_window_load(Window *window) {
     .select_click = prv_select_callback,
     .get_separator_height = prv_get_separator_height_callback
   });
-  menu_layer_set_normal_colors(menu_layer,
-                               PBL_IF_COLOR_ELSE(GColorBlack, GColorWhite),
-                               PBL_IF_COLOR_ELSE(GColorWhite, GColorBlack));
-  menu_layer_set_highlight_colors(menu_layer,
-                                  shell_prefs_get_settings_menu_highlight_color(),
-                                  GColorWhite);
+  menu_layer_set_normal_colors(menu_layer, shell_prefs_get_screen_background_color(false), shell_prefs_get_screen_foreground_color(false));
+  menu_layer_set_highlight_colors(menu_layer, shell_prefs_get_highlight_color(false), shell_prefs_get_highlight_foreground_color(false));
   menu_layer_set_click_config_onto_window(menu_layer, &data->window);
 
   layer_add_child(&data->window.layer, menu_layer_get_layer(menu_layer));
@@ -102,6 +97,13 @@ static void prv_window_unload(Window *window) {
   app_free(data);
 }
 
+static void prv_window_appear(Window *window) {
+  SettingsAppData *data = window_get_user_data(window);
+  window_set_background_color(&data->window, shell_prefs_get_screen_background_color(PBL_BW));
+  menu_layer_set_normal_colors(&data->menu_layer, shell_prefs_get_screen_background_color(PBL_BW), shell_prefs_get_screen_foreground_color(PBL_BW));
+  menu_layer_reload_data(&data->menu_layer);
+}
+
 static void handle_init(void) {
   SettingsAppData *data = app_zalloc_check(sizeof(SettingsAppData));
 
@@ -110,9 +112,10 @@ static void handle_init(void) {
   window_set_user_data(window, data);
   window_set_window_handlers(window, &(WindowHandlers){
     .load = prv_window_load,
+    .appear = prv_window_appear,
     .unload = prv_window_unload,
   });
-  window_set_background_color(window, GColorBlack);
+  window_set_background_color(&data->window, shell_prefs_get_screen_background_color(PBL_BW));
   app_window_stack_push(window, true);
 }
 

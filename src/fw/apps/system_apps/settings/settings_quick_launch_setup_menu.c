@@ -56,7 +56,7 @@ static void prv_push_first_use_dialog(void) {
   const char *text = i18n_get("Open favorite apps quickly with a long button press from your "
                               "watchface.", i18n_owner);
   ExpandableDialog *expandable_dialog = expandable_dialog_create_with_params(
-      WINDOW_NAME("Quick Launch First Use"), RESOURCE_ID_SUNNY_DAY_TINY, text, GColorBlack,
+      WINDOW_NAME("Quick Launch First Use"), RESOURCE_ID_SUNNY_DAY_TINY, text, GColorWhite,
       GColorWhite, NULL, RESOURCE_ID_ACTION_BAR_ICON_CHECK, prv_handle_quick_launch_confirm);
   expandable_dialog_set_header(expandable_dialog, header);
 #if PBL_ROUND

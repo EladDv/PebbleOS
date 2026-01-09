@@ -100,7 +100,7 @@ static void prv_window_load(Window *window) {
 
   const GTextAlignment alignment = PBL_IF_ROUND_ELSE(GTextAlignmentRight, GTextAlignmentLeft);
   const GTextOverflowMode overflow_mode = GTextOverflowModeTrailingEllipsis;
-  const GColor text_color = PBL_IF_COLOR_ELSE(GColorWhite, GColorBlack);
+  const GColor text_color = shell_prefs_get_text_color(false);
 
   TextLayer *msg_text_layer = &data->msg_text_layer;
   GRect msg_text_frame = (GRect) {

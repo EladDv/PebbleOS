@@ -51,6 +51,7 @@
 #include "services/normal/timeline/timeline_resources.h"
 #include "system/logging.h"
 #include "system/passert.h"
+#include "shell/prefs.h"
 #include "util/math.h"
 #include "util/trig.h"
 
@@ -396,12 +397,15 @@ static void prv_show_peek_for_notification(NotificationWindowData *data, Uuid *i
     }
     return;
   }
+  PBL_LOG(LOG_LEVEL_DEBUG, "Peek layer title color: 0x%02X",
+          data->peek_layer->title.text_layer.text_color.argb);
 
   // get the current layout so we can get the color and icon
   LayoutLayer *layout = swap_layer_get_current_layout(&data->swap_layer);
   if (!layout) {
     return;
   }
+
 
   // Get color and icon
   const LayoutColors *colors = layout_get_notification_colors(layout);
@@ -424,6 +428,7 @@ static void prv_show_peek_for_notification(NotificationWindowData *data, Uuid *i
   peek_layer_set_icon(data->peek_layer, &data->peek_icon_info);
 #endif
   peek_layer_set_background_color(data->peek_layer, colors->bg_color);
+  
 
   // This is so that only the banner of the swap_layer is sticking out from the bottom
   GRect swap_frame = ((Layer *)&data->swap_layer)->frame;
@@ -703,7 +708,7 @@ static void prv_push_snooze_dialog(void) {
   dialog_set_text(dialog, msg);
   dialog_set_icon(dialog, RESOURCE_ID_REMINDER_SNOOZE);
   i18n_free(msg, dialog);
-  dialog_set_text_color(dialog, GColorWhite);
+  dialog_set_text_color(dialog, shell_prefs_get_screen_foreground_color(true));
   dialog_set_fullscreen(dialog, true);
   dialog_set_background_color(dialog, GColorBlueMoon);
   dialog_set_timeout(dialog, 1700);
@@ -1091,7 +1096,7 @@ static void prv_layout_did_appear_handler(SwapLayer *swap_layer, LayoutLayer *la
 static void prv_update_colors_handler(SwapLayer *swap_layer, GColor bg_color,
                                       bool status_bar_filled, void *context) {
   NotificationWindowData *data = context;
-  GColor status_color = (status_bar_filled) ? bg_color : GColorWhite;
+  GColor status_color = (status_bar_filled) ? bg_color : shell_prefs_get_screen_background_color(true);
   // Status bar is clear on round, because the banner is rendered under it
   status_bar_layer_set_colors(&data->status_layer, PBL_IF_ROUND_ELSE(GColorClear, status_color),
                               gcolor_legible_over(status_color));
@@ -1206,9 +1211,10 @@ static void prv_init_notification_window(bool is_modal) {
 
   StatusBarLayer *status_layer = &data->status_layer;
   status_bar_layer_init(status_layer);
-  status_bar_layer_set_colors(status_layer, PBL_IF_RECT_ELSE(GColorBlack, GColorClear),
-                              PBL_IF_RECT_ELSE(GColorWhite, GColorBlack));
+  status_bar_layer_set_colors(status_layer, PBL_IF_RECT_ELSE(shell_prefs_get_screen_background_color(true), GColorClear),
+                              shell_prefs_get_screen_foreground_color(PBL_IF_RECT_ELSE(true, false)));
   status_bar_layer_set_separator_mode(status_layer, StatusBarLayerSeparatorModeNone);
+  window_set_background_color(window, shell_prefs_get_screen_background_color(true));
   layer_add_child(root_layer, (Layer *)status_layer);
 
   // bubble on right for action button

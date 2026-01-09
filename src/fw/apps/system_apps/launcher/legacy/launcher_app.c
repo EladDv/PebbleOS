@@ -18,6 +18,7 @@
 #include "services/normal/notifications/alerts_private.h"
 #include "applib/ui/kino/kino_layer.h"
 #include "system/passert.h"
+#include "shell/prefs.h"
 
 #include <inttypes.h>
 #include <stdint.h>
@@ -173,7 +174,7 @@ static void prv_window_load(Window *window) {
   GRect bounds = window->layer.bounds;
 
   status_bar_layer_init(&data->status_bar);
-  status_bar_layer_set_colors(&data->status_bar, GColorBlack, GColorWhite);
+  status_bar_layer_set_colors(&data->status_bar, shell_prefs_get_screen_background_color(true), shell_prefs_get_screen_foreground_color(true));
   layer_add_child(&window->layer, status_bar_layer_get_layer(&data->status_bar));
 
   static const int kino_width = 20;

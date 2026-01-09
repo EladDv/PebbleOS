@@ -10,6 +10,7 @@
 #include "process_management/process_manager.h"
 #include "shell/system_theme.h"
 #include "system/logging.h"
+#include "shell/prefs.h"
 
 // Look and feel
 #define DEFAULT_CELL_PADDING 10
@@ -300,6 +301,7 @@ static void prv_draw_text(SelectionLayer *selection_layer, GContext *ctx) {
         }
 
         GRect rect = GRect(current_x_offset, y_offset, selection_layer->cell_widths[i], height);
+        graphics_context_set_text_color(ctx, shell_prefs_get_highlight_foreground_color(true));
         graphics_draw_text(ctx, text, selection_layer->font,
             rect, GTextOverflowModeFill, GTextAlignmentCenter, NULL);
       }

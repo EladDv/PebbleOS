@@ -12,7 +12,7 @@
 #include "applib/graphics/gtypes.h"
 #include "applib/ui/animation_interpolate.h"
 #include "popups/timeline/peek.h"
-
+#include "shell/prefs.h"
 // TODO: PBL-31388 Factor out vertical compositor slide animations
 // This does a similar transition to the legacy modal slide transition
 // With a few tweaks, this compositor animation can drive both
@@ -104,7 +104,7 @@ static void prv_slide_transition_animation_update(GContext *ctx, Animation *anim
   if (s_data.timeline_is_destination) {
 #if CAPABILITY_HAS_TIMELINE_PEEK
     if (!s_data.timeline_is_empty) {
-      graphics_context_set_fill_color(ctx, GColorWhite);
+      graphics_context_set_fill_color(ctx, shell_prefs_get_screen_background_color(true));
       const int content_width = DISP_COLS - TIMELINE_PEEK_ICON_BOX_WIDTH;
       graphics_fill_rect(ctx, &GRect(0, fill_offset_y, content_width, fill_height));
       graphics_context_set_fill_color(ctx, s_data.fill_color);
@@ -119,7 +119,7 @@ static void prv_slide_transition_animation_update(GContext *ctx, Animation *anim
   } else {
     GBitmap app_bitmap = compositor_get_app_framebuffer_as_bitmap();
     bitblt_bitmap_into_bitmap(&dest_bitmap, &app_bitmap, GPoint(0, app_offset_y),
-                              GCompOpAssign, GColorWhite);
+                              GCompOpAssign, shell_prefs_get_screen_foreground_color(true));
     if (app_should_dupe) {
       prv_duplicate_framebuffer_row(&dest_bitmap, app_dupe_row, app_offset_y + app_dupe_row,
                                     &app_bitmap, app_dupe_row);
@@ -153,7 +153,7 @@ const CompositorTransition *compositor_slide_transition_timeline_get(
     bool timeline_is_future, bool timeline_is_destination, bool timeline_is_empty) {
   s_data = (CompositorSlideTransitionData) {
     .slide_up = timeline_is_future ^ !timeline_is_destination,
-    .fill_color = timeline_is_future ? TIMELINE_FUTURE_COLOR : TIMELINE_PAST_COLOR,
+    .fill_color = timeline_is_future ? shell_prefs_get_highlight_color(true) : TIMELINE_PAST_COLOR,
     .timeline_is_destination = timeline_is_destination,
     .timeline_is_empty = timeline_is_empty,
   };

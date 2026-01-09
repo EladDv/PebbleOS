@@ -238,11 +238,14 @@ void option_menu_configure(OptionMenu *option_menu,
   option_menu_set_title(option_menu, config->title);
   option_menu_set_choice(option_menu, config->choice);
   option_menu_set_content_type(option_menu, config->content_type);
+  option_menu_set_normal_colors(option_menu, config->normal_colors.background,
+                                config->normal_colors.foreground);
   option_menu_set_status_colors(option_menu, config->status_colors.background,
                                 config->status_colors.foreground);
   option_menu_set_highlight_colors(option_menu, config->highlight_colors.background,
                                    config->highlight_colors.foreground);
   option_menu_set_icons_enabled(option_menu, config->icons_enabled);
+  
 }
 
 void option_menu_init(OptionMenu *option_menu) {

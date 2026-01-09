@@ -219,11 +219,38 @@ static uint8_t s_legacy_app_render_mode = 1; // Default to scaled mode
 
 #define PREF_KEY_SETTINGS_MENU_HIGHLIGHT_COLOR "settingsMenuHighlightColor"
 #define PREF_KEY_APPS_MENU_HIGHLIGHT_COLOR "appsMenuHighlightColor"
+#define PREF_KEY_THEME_MODE "themeMode"
+#define PREF_KEY_THEME_MODE_COLORS "themeModeColors"
 
+static ThemeMode s_theme_mode = ThemeMode_Default;
 
-static GColor s_settings_menu_highlight_color = GColorCobaltBlue;
-static GColor s_apps_menu_highlight_color = GColorVividCerulean;
+static ThemeModeColors s_theme_mode_colors = {
+  .dark_screen_background_color = GColorBlack,
+  .dark_screen_foreground_color = GColorWhite,
+#if PBL_COLOR
+  .dark_highlight_color = GColorCobaltBlue,
+  .dark_highlight_foreground_color = GColorWhite,
+#else
+  .dark_highlight_color = GColorWhite,
+  .dark_highlight_foreground_color = GColorBlack,
+#endif
 
+  .dark_text_background_color = GColorBlack,
+  .dark_text_color = GColorWhite,
+  .light_screen_background_color = GColorWhite,
+  .light_screen_foreground_color = GColorBlack,
+
+#if PBL_COLOR
+  .light_highlight_color = GColorVividCerulean,
+  .light_highlight_foreground_color = GColorBlack,
+#else
+  .light_highlight_color = GColorBlack,
+  .light_highlight_foreground_color = GColorWhite,
+
+#endif
+  .light_text_color = GColorBlack,
+  .light_text_background_color = GColorWhite,
+};
 
 // ============================================================================================
 // Handlers for each pref that validate the new setting and store the new value in our globals.
@@ -598,24 +625,16 @@ static bool prv_set_s_legacy_app_render_mode(uint8_t *mode) {
 }
 #endif
 
-static bool prv_set_s_settings_menu_highlight_color(GColor *color) {
-#if PBL_COLOR
-  s_settings_menu_highlight_color = *color;
-#else
-  s_settings_menu_highlight_color = GColorBlack;
-#endif
+static bool prv_set_s_theme_mode(ThemeMode *mode) {
+  s_theme_mode = *mode;
   return true;
 }
 
-static bool prv_set_s_apps_menu_highlight_color(GColor *color) {
-#if PBL_COLOR
-  s_apps_menu_highlight_color = *color;
-#else
-  s_apps_menu_highlight_color = GColorBlack;
-#endif
+static bool prv_set_s_theme_mode_colors(ThemeModeColors *colors) {
+  s_theme_mode_colors = *colors;
   return true;
 }
-  
+
 // ------------------------------------------------------------------------------------
 // Table of all prefs
 typedef bool (*PrefSetHandler)(const void *value, size_t val_len);
@@ -1557,26 +1576,146 @@ void shell_prefs_set_legacy_app_render_mode(LegacyAppRenderMode mode) {
 }
 #endif
 
-GColor shell_prefs_get_settings_menu_highlight_color(void){
-  #if !PBL_COLOR
-    return GColorBlack;
-  #endif
-  return s_settings_menu_highlight_color;
+
+ThemeMode shell_prefs_get_theme_mode(void){
+  return s_theme_mode;
+}
+void shell_prefs_set_theme_mode(ThemeMode mode){
+  uint8_t mode_value = (uint8_t)mode;
+  prv_pref_set(PREF_KEY_THEME_MODE, &mode_value, sizeof(mode_value));
 }
 
-void shell_prefs_set_settings_menu_highlight_color(GColor color) {
-  prv_pref_set(PREF_KEY_SETTINGS_MENU_HIGHLIGHT_COLOR, &color, sizeof(GColor));
+
+ThemeModeColors shell_prefs_get_theme_mode_colors(void) {
+  return s_theme_mode_colors;
+}
+void shell_prefs_set_theme_mode_colors(ThemeModeColors colors) {
+  prv_pref_set(PREF_KEY_THEME_MODE_COLORS, &colors, sizeof(ThemeModeColors));
 }
 
+void shell_prefs_set_highlight_color(GColor color, bool is_light) {
+  ThemeModeColors current_colors = shell_prefs_get_theme_mode_colors();
+  ThemeModeColors new_theme_colors = {
+    .light_screen_foreground_color = current_colors.light_screen_foreground_color,
+    .light_screen_background_color = current_colors.light_screen_background_color,
+    .light_text_color = current_colors.light_text_color,
+    .light_text_background_color = current_colors.light_text_background_color,
+    .light_highlight_foreground_color = current_colors.light_highlight_foreground_color,
+    .light_highlight_color = is_light ? color : current_colors.light_highlight_color,
 
-
-GColor shell_prefs_get_apps_menu_highlight_color(void){
-  #if !PBL_COLOR
-    return GColorBlack;
-  #endif
-  return s_apps_menu_highlight_color;
+    .dark_screen_foreground_color = current_colors.dark_screen_foreground_color,
+    .dark_screen_background_color = current_colors.dark_screen_background_color,
+    .dark_text_color = current_colors.dark_text_color,
+    .dark_text_background_color = current_colors.dark_text_background_color,
+    .dark_highlight_foreground_color = current_colors.dark_highlight_foreground_color,
+    .dark_highlight_color = is_light ? current_colors.dark_highlight_color : color,
+  };
+  shell_prefs_set_theme_mode_colors(new_theme_colors);
 }
 
-void shell_prefs_set_apps_menu_highlight_color(GColor color) {
-  prv_pref_set(PREF_KEY_APPS_MENU_HIGHLIGHT_COLOR, &color, sizeof(GColor));
+GColor shell_prefs_get_highlight_color(bool default_light){
+  ThemeModeColors colors = shell_prefs_get_theme_mode_colors();
+  ThemeMode mode = shell_prefs_get_theme_mode();
+  if (mode == ThemeMode_Light) {
+    return colors.light_highlight_color;
+  } else if (mode == ThemeMode_Dark) {
+    return colors.dark_highlight_color;
+  } else {
+    return default_light ? colors.light_highlight_color : colors.dark_highlight_color;
+  }
+}
+
+GColor shell_prefs_get_highlight_foreground_color(bool default_light){
+  ThemeModeColors colors = shell_prefs_get_theme_mode_colors();
+  ThemeMode mode = shell_prefs_get_theme_mode();
+  if (mode == ThemeMode_Light) {
+    return colors.light_highlight_foreground_color;
+  } else if (mode == ThemeMode_Dark) {
+    return colors.dark_highlight_foreground_color;
+  } else {
+    return default_light ? colors.light_highlight_foreground_color : colors.dark_highlight_foreground_color;
+  }
+}
+
+GColor shell_prefs_get_text_color(bool default_light){
+  ThemeModeColors colors = shell_prefs_get_theme_mode_colors();
+  ThemeMode mode = shell_prefs_get_theme_mode();
+  if (mode == ThemeMode_Light) {
+    return colors.light_text_color;
+  } else if (mode == ThemeMode_Dark) {
+    return colors.dark_text_color;
+  } else {
+    return default_light ? colors.light_text_color : colors.dark_text_color;
+  }
+}
+
+GColor shell_prefs_get_text_background_color(bool default_light){
+  ThemeModeColors colors = shell_prefs_get_theme_mode_colors();
+  ThemeMode mode = shell_prefs_get_theme_mode();
+  if (mode == ThemeMode_Light) {
+    return colors.light_text_background_color;
+  } else if (mode == ThemeMode_Dark) {
+    return colors.dark_text_background_color;
+  } else {
+    return default_light ? colors.light_text_background_color : colors.dark_text_background_color;
+  }
+}
+
+GColor shell_prefs_get_screen_grey_color(bool default_light){
+  ThemeMode mode = shell_prefs_get_theme_mode();
+  if (mode == ThemeMode_Light) {
+    return GColorDarkGray;
+  } else if (mode == ThemeMode_Dark) {
+    return GColorLightGray;
+  } else {
+    return default_light ? GColorDarkGray : GColorLightGray;
+  }
+}
+
+GColor shell_prefs_get_screen_background_color(bool default_light){
+  ThemeModeColors colors = shell_prefs_get_theme_mode_colors();
+  ThemeMode mode = shell_prefs_get_theme_mode();
+  if (mode == ThemeMode_Light) {
+    return colors.light_screen_background_color;
+  } else if (mode == ThemeMode_Dark) {
+    return colors.dark_screen_background_color;
+  } else {
+    return default_light ? colors.light_screen_background_color : colors.dark_screen_background_color;
+  }
+}
+
+GColor shell_prefs_get_screen_foreground_color(bool default_light){
+  ThemeModeColors colors = shell_prefs_get_theme_mode_colors();
+  ThemeMode mode = shell_prefs_get_theme_mode();
+  if (mode == ThemeMode_Light) {
+    return colors.light_screen_foreground_color;
+  } else if (mode == ThemeMode_Dark) {
+    return colors.dark_screen_foreground_color;
+  } else {
+    return default_light ? colors.light_screen_foreground_color : colors.dark_screen_foreground_color;
+  }
+}
+
+GColor shell_prefs_get_screen_background_color_override(bool default_light, GColor default_color_light, GColor default_color_dark){
+  ThemeModeColors colors = shell_prefs_get_theme_mode_colors();
+  ThemeMode mode = shell_prefs_get_theme_mode();
+  if (mode == ThemeMode_Light) {
+    return colors.light_screen_background_color;
+  } else if (mode == ThemeMode_Dark) {
+    return colors.dark_screen_background_color;
+  } else {
+    return default_light ? default_color_light : default_color_dark;
+  }
+}
+
+GColor shell_prefs_get_screen_foreground_color_override(bool default_light, GColor default_color_light, GColor default_color_dark){
+  ThemeModeColors colors = shell_prefs_get_theme_mode_colors();
+  ThemeMode mode = shell_prefs_get_theme_mode();
+  if (mode == ThemeMode_Light) {
+    return colors.light_screen_foreground_color;
+  } else if (mode == ThemeMode_Dark) {
+    return colors.dark_screen_foreground_color;
+  } else {
+    return default_light ? default_color_light : default_color_dark;
+  }
 }

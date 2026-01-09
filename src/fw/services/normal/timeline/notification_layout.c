@@ -22,6 +22,7 @@
 #include "services/normal/notifications/alerts_preferences_private.h"
 #include "services/normal/timeline/timeline_resources.h"
 #include "shell/system_theme.h"
+#include "shell/prefs.h"
 #include "system/hexdump.h"
 #include "system/logging.h"
 #include "system/passert.h"
@@ -376,6 +377,10 @@ static void prv_card_init(NotificationLayout *layout, AttributeList *attributes,
 #else
   kino_layer_set_reel_with_resource_system(&layout->icon_layer, layout->icon_res_info.res_app_num,
                                            layout->icon_res_info.res_id, false);
+
+  // if we want to inverted icon colors based on theme mode, enable this
+  // kino_layer_set_reel_with_resource_system(&layout->icon_layer, layout->icon_res_info.res_app_num,
+  //                                          layout->icon_res_info.res_id, shell_prefs_get_theme_mode() > ThemeMode_Light);
 #endif
   layer_add_child(&layout->layout.layer, kino_layer_get_layer(&layout->icon_layer));
 }
@@ -500,7 +505,7 @@ static NOINLINE void prv_card_render_internal(NotificationLayout *layout, GConte
     .text_flow = PBL_IF_ROUND_ELSE(true, false),
     .paging = PBL_IF_ROUND_ELSE(true, false),
   };
-  graphics_context_set_text_color(ctx, GColorBlack);
+  graphics_context_set_text_color(ctx, shell_prefs_get_text_color(true));
   (text_visible ? graphics_text_node_draw :
                   graphics_text_node_get_size)(layout->view_node, ctx, &box, &config,
                                                &layout->view_size);

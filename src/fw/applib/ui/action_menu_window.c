@@ -11,6 +11,7 @@
 #include "process_state/app_state/app_state.h"
 #include "services/normal/timeline/timeline.h"
 #include "services/common/i18n/i18n.h"
+#include "shell/prefs.h"
 
 #define ACTION_MENU_DEFAULT_BACKGROUND_COLOR GColorWhite
 
@@ -322,15 +323,15 @@ ActionMenu *action_menu_open(WindowStack *window_stack, ActionMenuConfig *config
     data->config.colors.foreground = gcolor_legible_over(data->config.colors.background);
   }
 #else
-  data->config.colors.background = GColorLightGray;
-  data->config.colors.foreground = GColorBlack;
+  data->config.colors.background = shell_prefs_get_screen_grey_color(false);
+  data->config.colors.foreground = shell_prefs_get_screen_foreground_color(false);
 #endif
 
   Window *window = &data->action_menu.window;
   window_init(window, WINDOW_NAME("Action Menu"));
   window_set_user_data(window, data);
   window_set_fullscreen(window, true);
-  window_set_background_color(window, GColorBlack);
+  window_set_background_color(window, shell_prefs_get_screen_background_color(false));
   window_set_window_handlers(window, &(WindowHandlers) {
     .load = prv_action_window_load,
     .unload = prv_action_window_unload,

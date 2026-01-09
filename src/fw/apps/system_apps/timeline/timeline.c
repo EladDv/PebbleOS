@@ -33,7 +33,7 @@
 #include "util/attributes.h"
 #include "util/size.h"
 #include "util/uuid.h"
-
+#include "shell/prefs.h"
 // This is used to determine whether this app was launched as Timeline or Timeline Past.
 // See timeline_get_app_info, timeline_past_get_app_info, and the usage of sys_get_app_uuid.
 
@@ -347,7 +347,7 @@ static void prv_move_timeline_layer_stopped(Animation *animation, bool finished,
 
   // reset the timeline layer
   data->timeline_layer.layer.bounds.origin.x = 0;
-  window_set_background_color(&data->timeline_window, GColorWhite);
+  window_set_background_color(&data->timeline_window, shell_prefs_get_screen_background_color(true));
 
   if (!finished) {
     return;
@@ -991,7 +991,8 @@ static GColor prv_get_sidebar_color(TimelineAppData *data) {
   if (s_app_data->timeline_model.direction == TimelineIterDirectionPast) {
     return TIMELINE_PAST_COLOR;
   } else {
-    return TIMELINE_FUTURE_COLOR;
+    return shell_prefs_get_highlight_color(true);
+    // return TIMELINE_FUTURE_COLOR;
   }
 }
 #endif
@@ -1017,7 +1018,7 @@ static void prv_timeline_window_load(Window *window) {
     scroll_direction = TimelineScrollDirectionDown;
   }
 
-  window_set_background_color(window, GColorWhite);
+  window_set_background_color(window, shell_prefs_get_screen_background_color(true));
 
   // timeline layer
   timeline_layer_init(timeline_layer, &window->layer.bounds, scroll_direction);
@@ -1061,7 +1062,7 @@ static void prv_back_from_card_stopped(Animation *animation, bool finished, void
     return;
   }
 
-  window_set_background_color(&data->timeline_window, GColorWhite);
+  window_set_background_color(&data->timeline_window, shell_prefs_get_screen_background_color(true));
 
   data->current_animation = NULL;
   prv_update_timeline_layer(data);
@@ -1096,7 +1097,7 @@ Animation *timeline_animate_back_from_card(void) {
   animation_unschedule(data->current_animation);
 
   timeline_layer_set_layouts_hidden(&data->timeline_layer, true);
-  window_set_background_color(&data->timeline_window, GColorWhite);
+  window_set_background_color(&data->timeline_window, shell_prefs_get_screen_background_color(true));
 
 
 #if !PLATFORM_TINTIN

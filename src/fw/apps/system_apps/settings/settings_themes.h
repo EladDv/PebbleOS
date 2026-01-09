@@ -2,20 +2,15 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
 #pragma once
-
 #include "settings_menu.h"
 #include "shell/system_theme.h"
 
-#ifndef DEFAULT_SETTINGS_HIGHLIGHT_COLOR
-#define DEFAULT_SETTINGS_HIGHLIGHT_COLOR GColorCobaltBlue
-#define DEFAULT_APPS_HIGHLIGHT_COLOR GColorVividCerulean
+#ifndef DEFAULT_COLOR_DEFINITION
+#define DEFAULT_COLOR_DEFINITION {\
+  .name = "Default",\
+  .light = PBL_IF_COLOR_ELSE(GColorVividCerulean, GColorWhite),\
+  .dark = PBL_IF_COLOR_ELSE(GColorCobaltBlue, GColorWhite)};
 #endif
-
-typedef struct ColorDefinition {
-  const char *name;
-  const GColor light;
-  const GColor dark;
-} ColorDefinition;
 
 static const ColorDefinition s_color_definitions[11] = {
   {"Default", GColorClear},
@@ -30,5 +25,4 @@ static const ColorDefinition s_color_definitions[11] = {
   {"Magenta", GColorMagenta, GColorPurple},
   {"Pink", GColorBrilliantRose, GColorJazzberryJam},
 };
-
 const SettingsModuleMetadata *settings_themes_get_info(void);

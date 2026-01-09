@@ -21,6 +21,7 @@
 #include "system/logging.h"
 #include "system/passert.h"
 #include "util/math.h"
+#include "shell/prefs.h"
 
 #include <string.h>
 
@@ -606,9 +607,9 @@ void menu_layer_init(MenuLayer *menu_layer, const GRect *frame) {
   scroll_layer_set_shadow_hidden(scroll_layer, true);
   scroll_layer_set_context(scroll_layer, menu_layer);
 
-  menu_layer_set_normal_colors(menu_layer, GColorWhite, GColorBlack);
-  menu_layer_set_highlight_colors(menu_layer, GColorBlack, GColorWhite);
-
+  menu_layer_set_normal_colors(menu_layer, shell_prefs_get_screen_background_color(true), shell_prefs_get_screen_foreground_color(true));
+  menu_layer_set_highlight_colors(menu_layer, shell_prefs_get_highlight_color(true), shell_prefs_get_highlight_foreground_color(true));
+  
   InverterLayer *inverter = &menu_layer->inverter;
   inverter_layer_init(inverter, &GRectZero);
   scroll_layer_add_child(scroll_layer, &inverter->layer);

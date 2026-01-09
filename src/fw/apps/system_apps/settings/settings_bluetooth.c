@@ -521,7 +521,7 @@ static void prv_draw_row_cb(SettingsCallbacks *context, GContext *ctx,
       // Enable drawing outside of the cell:
       ctx->draw_state.clip_box = ctx->dest_bitmap.bounds;
 
-      graphics_context_set_text_color(ctx, GColorBlack);
+      graphics_context_set_text_color(ctx, shell_prefs_get_highlight_foreground_color(true));
       GFont font = fonts_get_system_font(FONT_KEY_GOTHIC_18);
       GRect box = cell_layer->bounds;
       box.origin.x = 15;

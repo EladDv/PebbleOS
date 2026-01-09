@@ -6,6 +6,7 @@
 #include "applib/fonts/fonts.h"
 #include "applib/platform.h"
 #include "applib/preferred_content_size.h"
+#include "applib/graphics/gtypes.h"
 
 //! System Theme Text Style is a font collection used to unify text styles across the system.
 //! It contains a variety of different font sizes for use in an application, each meant for a
@@ -96,3 +97,10 @@ PreferredContentSize system_theme_get_default_content_size_for_runtime_platform(
 //! platform
 PreferredContentSize system_theme_convert_host_content_size_to_runtime_platform(
     PreferredContentSize size);
+
+
+typedef struct ColorDefinition {
+  const char *name;
+  const GColor light;
+  const GColor dark;
+} ColorDefinition;

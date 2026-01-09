@@ -281,7 +281,7 @@ void settings_display_calibration_push(WindowStack *window_stack) {
   window_set_click_config_provider_with_context(window, prv_config_provider, data);
   window_set_user_data(window, data);
   window_set_window_handlers(window, &(WindowHandlers) { .unload = prv_window_unload });
-  window_set_background_color(window, GColorBlack);
+  window_set_background_color(window, shell_prefs_get_screen_background_color(false));
 
   Layer *root_layer = window_get_root_layer(window);
   Layer *layer = &data->layer;

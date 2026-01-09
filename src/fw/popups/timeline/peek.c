@@ -46,19 +46,19 @@ static void prv_draw_background(GContext *ctx, const GRect *frame_orig,
   // Fill all the way to the bottom of the screen
   frame.size.h = DISP_ROWS - frame.origin.y;
 #endif
-  const GColor background_color = GColorWhite;
+  const GColor background_color = shell_prefs_get_screen_background_color(true);
   graphics_context_set_fill_color(ctx, background_color);
   graphics_fill_rect(ctx, &frame);
 
   // Draw the icon background
   frame.origin.x += DISP_COLS - TIMELINE_PEEK_ICON_BOX_WIDTH;
   frame.size.w = TIMELINE_PEEK_ICON_BOX_WIDTH;
-  graphics_context_set_fill_color(ctx, TIMELINE_FUTURE_COLOR);
+  graphics_context_set_fill_color(ctx, shell_prefs_get_highlight_color(true));
   graphics_fill_rect(ctx, &frame);
 
   // Draw the top border and concurrent event indicators
   frame = *frame_orig;
-  const GColor border_color = GColorBlack;
+  const GColor border_color = shell_prefs_get_screen_foreground_color(true);
   for (unsigned int i = 0; i <= num_concurrent; i++) {
     const bool has_content = (i < num_concurrent);
     for (unsigned int type = 0; type < (has_content ? 2 : 1); type++) {
@@ -101,8 +101,14 @@ static void prv_timeline_peek_update_proc(Layer *layer, GContext *ctx) {
 
 static void prv_redraw(void *PBL_UNUSED data) {
   TimelinePeek *peek = &s_peek;
+  peek->peek_layout->timeline_layout->colors = (LayoutColors){
+    .primary_color = shell_prefs_get_screen_foreground_color(true),
+    .secondary_color = shell_prefs_get_screen_foreground_color(true),
+    .bg_color = peek->peek_layout->timeline_layout->colors.bg_color,
+  };
   layer_mark_dirty(&peek->layout_layer);
 }
+
 
 static void prv_cron_callback(CronJob *job, void *PBL_UNUSED data) {
   launcher_task_add_callback(prv_redraw, NULL);
@@ -143,6 +149,11 @@ static PeekLayout *prv_create_layout(TimelineItem *item, unsigned int num_concur
     .context = &layout->info,
   };
   layout->timeline_layout = (TimelineLayout *)layout_create(item->header.layout, &config);
+  layout->timeline_layout->colors = (LayoutColors){
+    .primary_color = shell_prefs_get_screen_foreground_color(true),
+    .secondary_color = shell_prefs_get_screen_foreground_color(true),
+    .bg_color = layout->timeline_layout->colors.bg_color,
+  };
   return layout;
 }
 
@@ -251,6 +262,10 @@ static void prv_transition_frame(TimelinePeek *peek, bool visible, bool animated
   if ((last_visible == visible) && grect_equal(&peek->layout_layer.frame, &to_frame)) {
     // No change
     return;
+  }
+
+  if (peek->visible && !last_visible){
+    timeline_event_refresh();
   }
 
   if (!animated) {

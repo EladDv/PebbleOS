@@ -157,8 +157,9 @@ void quick_launch_app_menu_window_push(ButtonId button, bool is_tap) {
   const OptionMenuConfig config = {
     .title = i18n_get(i18n_noop("Quick Launch"), data),
     .choice = (install_id == INSTALL_ID_INVALID) ? 0 : (app_index + NUM_CUSTOM_CELLS),
-    .status_colors = { GColorWhite, GColorBlack, },
-    .highlight_colors = { shell_prefs_get_settings_menu_highlight_color(), GColorWhite },
+    .status_colors = { shell_prefs_get_screen_background_color(true), shell_prefs_get_screen_foreground_color(true) },
+    .normal_colors = { shell_prefs_get_screen_background_color(true), shell_prefs_get_screen_foreground_color(true) },
+    .highlight_colors = { shell_prefs_get_highlight_color(true), shell_prefs_get_highlight_foreground_color(true) },
     .icons_enabled = true,
   };
   option_menu_configure(option_menu, &config);

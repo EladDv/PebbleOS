@@ -176,7 +176,7 @@ static void prv_init_status_bar(StatusBarLayer *status_layer, Window *window, co
   status_bar_layer_init(status_layer);
   status_bar_layer_set_title(status_layer, text, false, false);
   status_bar_layer_set_separator_mode(status_layer, OPTION_MENU_STATUS_SEPARATOR_MODE);
-  status_bar_layer_set_colors(status_layer, GColorWhite, GColorBlack);
+  status_bar_layer_set_colors(status_layer, shell_prefs_get_screen_background_color(true), shell_prefs_get_screen_foreground_color(true));
   layer_add_child(&window->layer, status_bar_layer_get_layer(status_layer));
 }
 
@@ -301,7 +301,7 @@ static void prv_information_window_load(Window *window) {
     .draw_row = prv_information_draw_row_callback,
     .select_click = prv_information_select_callback,
   });
-  menu_layer_set_highlight_colors(menu_layer, shell_prefs_get_settings_menu_highlight_color(), GColorWhite);
+  menu_layer_set_highlight_colors(menu_layer, shell_prefs_get_highlight_color(false), shell_prefs_get_highlight_foreground_color(false));
   menu_layer_set_click_config_onto_window(menu_layer, &data->window);
 
   layer_add_child(&data->window.layer, menu_layer_get_layer(menu_layer));
@@ -706,7 +706,7 @@ static void prv_debugging_window_load(Window *window) {
     .draw_row = prv_debugging_draw_row_callback,
     .select_click = prv_debugging_select_callback,
   });
-  menu_layer_set_highlight_colors(menu_layer, shell_prefs_get_settings_menu_highlight_color(), GColorWhite);
+  menu_layer_set_highlight_colors(menu_layer, shell_prefs_get_highlight_color(false), shell_prefs_get_highlight_foreground_color(false));
   menu_layer_set_click_config_onto_window(menu_layer, &data->window);
 
   layer_add_child(&data->window.layer, menu_layer_get_layer(menu_layer));
@@ -1228,7 +1228,8 @@ static void prv_certification_window_load(Window *window) {
     .draw_row = prv_certification_draw_row_callback,
     .select_click = prv_certification_select_callback,
   });
-  menu_layer_set_highlight_colors(menu_layer, shell_prefs_get_settings_menu_highlight_color(), GColorWhite);
+  
+  menu_layer_set_highlight_colors(menu_layer, shell_prefs_get_highlight_color(true), shell_prefs_get_highlight_foreground_color(true));
   menu_layer_set_click_config_onto_window(menu_layer, &data->window);
 
   layer_add_child(&data->window.layer, menu_layer_get_layer(menu_layer));
