@@ -24,6 +24,7 @@
 #include "resource/resource_ids.auto.h"
 #include "system/logging.h"
 #include "system/passert.h"
+#include "shell/prefs.h"
 #include "util/math.h"
 
 #include <inttypes.h>
@@ -673,7 +674,7 @@ static void prv_no_music_window_click_config(void *context) {
 static MusicNoMusicWindow *prv_create_no_music_window(void) {
   MusicNoMusicWindow *window = app_malloc_check(sizeof(MusicNoMusicWindow));
   window_init(&window->window, WINDOW_NAME("NoMusicWindow"));
-  window_set_background_color(&window->window, PBL_IF_COLOR_ELSE(GColorLightGray, GColorWhite));
+  window_set_background_color(&window->window, PBL_IF_COLOR_ELSE(shell_prefs_get_screen_background_color_override(true, GColorLightGray, GColorLightGray),shell_prefs_get_screen_background_color(true)));
   window_set_window_handlers(&window->window, &(WindowHandlers) {
       .unload = prv_unload_no_music_window
   });
@@ -696,7 +697,7 @@ static MusicNoMusicWindow *prv_create_no_music_window(void) {
                                   &NO_MUSIC_TEXT_RECT,
                                   i18n_get("START PLAYBACK\nON YOUR PHONE", window),
                                   fonts_get_system_font(config->no_music_font_key),
-                                  GColorBlack, GColorClear, GTextAlignmentCenter,
+                                  shell_prefs_get_text_color(true), GColorClear, GTextAlignmentCenter,
                                   GTextOverflowModeTrailingEllipsis);
   layer_add_child(&window->window.layer, &window->bitmap_layer.layer);
   layer_add_child(&window->window.layer, &window->text_layer.layer);
@@ -808,7 +809,7 @@ static void prv_configure_music_text_layer(
     TextLayer *text_layer, char* text_buffer, const GRect *rect, int16_t y_offset,
     GTextAlignment align, GFont font) {
   text_layer_init_with_parameters(text_layer, rect, text_buffer, font,
-                                  GColorBlack, GColorClear, align, GTextOverflowModeFill);
+                                  shell_prefs_get_text_color(true), GColorClear, align, GTextOverflowModeFill);
   layer_set_bounds(&text_layer->layer, &GRect(0, -y_offset,
                                               rect->size.w, rect->size.h + y_offset));
 }
@@ -816,7 +817,7 @@ static void prv_configure_music_text_layer(
 static void prv_init_ui(Window *window) {
   MusicAppData *data = window_get_user_data(window);
 
-  window_set_background_color(window, PBL_IF_COLOR_ELSE(GColorLightGray, GColorWhite));
+  window_set_background_color(window, PBL_IF_COLOR_ELSE(shell_prefs_get_screen_background_color_override(true, GColorLightGray, GColorLightGray), shell_prefs_get_screen_background_color(true)));
 
   const GSize WINDOW_SIZE = window->layer.bounds.size;
 
@@ -870,9 +871,9 @@ static void prv_init_ui(Window *window) {
 
   progress_layer_init(&data->track_pos_bar, &track_rect);
   progress_layer_set_background_color(&data->track_pos_bar,
-                                      PBL_IF_COLOR_ELSE(GColorBlack, GColorWhite));
+                                      PBL_IF_COLOR_ELSE(shell_prefs_get_screen_background_color(false), shell_prefs_get_screen_background_color(true)));
   progress_layer_set_foreground_color(&data->track_pos_bar,
-                                      PBL_IF_COLOR_ELSE(GColorRed, GColorBlack));
+                                      PBL_IF_COLOR_ELSE(GColorRed, shell_prefs_get_screen_foreground_color(true)));
   progress_layer_set_corner_radius(&data->track_pos_bar, config->track_corner_radius);
   layer_add_child(&window->layer, (Layer *)&data->track_pos_bar);
 
@@ -889,7 +890,7 @@ static void prv_init_ui(Window *window) {
                                                           WINDOW_SIZE.w);
   status_layer_frame.size.w = STATUS_BAR_LAYER_WIDTH;
   layer_set_frame(&status_layer->layer, &status_layer_frame);
-  status_bar_layer_set_colors(&data->status_layer, GColorClear, GColorBlack);
+  status_bar_layer_set_colors(&data->status_layer, GColorClear, shell_prefs_get_screen_foreground_color(true));
   layer_add_child(&data->window.layer, &status_layer->layer);
 
   music_get_pos(&data->track_pos, &data->track_length);

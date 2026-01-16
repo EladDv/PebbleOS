@@ -593,7 +593,7 @@ static void prv_layout_init_colors(NotificationLayout *notification_layout) {
 #endif
 
 #if PBL_COLOR
-  const bool is_notification =1
+  const bool is_notification = 
       (notification_layout->info.item->header.type == TimelineItemTypeNotification);
   const GColor default_bg_color = is_notification ? DEFAULT_NOTIFICATION_COLOR :
                                                     DEFAULT_REMINDER_COLOR;
