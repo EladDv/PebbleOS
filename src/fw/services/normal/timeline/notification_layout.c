@@ -573,27 +573,27 @@ static void prv_layout_init_colors(NotificationLayout *notification_layout) {
   const bool use_alternative_design = alerts_preferences_get_notification_alternative_design();
   if (use_alternative_design) {
     *colors = (LayoutColors){
-        .primary_color = GColorWhite,
-        .secondary_color = GColorBlack,
-        .bg_color = GColorBlack,
+        .primary_color = shell_prefs_get_screen_background_color(true),
+        .secondary_color = shell_prefs_get_screen_foreground_color(true),
+        .bg_color = shell_prefs_get_screen_foreground_color(true),
     };
   } else {
     *colors = (LayoutColors){
-        .primary_color = GColorBlack,
-        .secondary_color = GColorBlack,
+        .primary_color = shell_prefs_get_screen_foreground_color(true),
+        .secondary_color = shell_prefs_get_screen_foreground_color(true),
         .bg_color = GColorLightGray,
     };
   }
 #else
   *colors = (LayoutColors){
-      .primary_color = GColorBlack,
-      .secondary_color = GColorBlack,
+      .primary_color = shell_prefs_get_screen_foreground_color(true),
+      .secondary_color = shell_prefs_get_screen_foreground_color(true),
       .bg_color = GColorLightGray,
   };
 #endif
 
 #if PBL_COLOR
-  const bool is_notification =
+  const bool is_notification =1
       (notification_layout->info.item->header.type == TimelineItemTypeNotification);
   const GColor default_bg_color = is_notification ? DEFAULT_NOTIFICATION_COLOR :
                                                     DEFAULT_REMINDER_COLOR;
@@ -602,7 +602,7 @@ static void prv_layout_init_colors(NotificationLayout *notification_layout) {
   colors->bg_color = (GColor) attribute_get_uint8(layout->attributes, AttributeIdBgColor,
                                                   default_bg_color.argb);
   colors->primary_color = (GColor) attribute_get_uint8(layout->attributes, AttributeIdPrimaryColor,
-                                                       GColorBlack.argb);
+                                                       shell_prefs_get_screen_background_color(false).argb);
 #endif
 }
 
