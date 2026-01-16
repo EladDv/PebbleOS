@@ -19,6 +19,7 @@
 #include "resource/resource_ids.auto.h"
 #include "services/common/i18n/i18n.h"
 #include "system/passert.h"
+#include "shell/prefs.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -151,8 +152,8 @@ static void prv_window_load(Window *window) {
     .select_click = (MenuLayerSelectCallback) select_callback,
   });
   menu_layer_set_highlight_colors(&data->menu_layer,
-                                  PBL_IF_COLOR_ELSE(GColorJazzberryJam, GColorBlack),
-                                  GColorWhite);
+                                  PBL_IF_COLOR_ELSE(GColorJazzberryJam, shell_prefs_get_highlight_color(true)),
+                                  shell_prefs_get_highlight_foreground_color(true));
   menu_layer_set_click_config_onto_window(menu_layer, window);
   layer_add_child(&window->layer, menu_layer_get_layer(menu_layer));
 }
